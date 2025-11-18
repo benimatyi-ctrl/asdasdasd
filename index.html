@@ -1,0 +1,715 @@
+
+<!doctype html>
+<html lang="hu">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Étterem döntéstámogató — Portfólió stílus</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <style>
+    :root{
+      /* Portfólió apphoz illeszkedő világos téma */
+      --bg:#f5f7fb;
+      --card:#ffffff;
+      --ink:#12151c;
+      --muted:#6b7280;
+      --primary:#3474db;   /* kék */
+      --accent:#10b981;    /* zöld */
+      --warn:#ef4444;      /* piros */
+      --ok:#22c55e;        /* ok zöld */
+      --pill:#edf2ff;      /* tab pill világos */
+      --shadow: 0 10px 24px rgba(17,24,39,0.10);
+      --radius-xl: 24px;
+      --radius-lg: 18px;
+      --radius-md: 14px;
+      --radius-sm: 10px;
+      --grad-blue: linear-gradient(180deg,#60a5fa 0%,#3b82f6 100%);
+      --grad-green: linear-gradient(180deg,#34d399 0%,#10b981 100%);
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;height:100%}
+    body{
+      font:15px/1.55 Inter,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial,sans-serif;
+      background:linear-gradient(180deg,#f7f9fd 0%, #eef2f9 45%, #eaf0fb 100%);
+      color:var(--ink);
+      display:flex; flex-direction:column;
+    }
+
+    /* App wrapper, mobil keret */
+    .app{
+      max-width:460px;
+      margin:0 auto;
+      min-height:100%;
+      display:flex; flex-direction:column;
+      padding-bottom:96px; /* hely a bottom nav-nak */
+    }
+
+    /* Header — portfólió stílus */
+    header{
+      padding:20px 20px 12px;
+      display:flex; justify-content:space-between; align-items:center;
+    }
+    .greet{
+      display:flex; flex-direction:column;
+      animation:slideDown 420ms cubic-bezier(.2,.8,.2,1);
+    }
+    .greet .hi{
+      font-weight:800; letter-spacing:0.2px; font-size:18px;
+    }
+    .greet .date{
+      font-size:12px; color:var(--muted); margin-top:2px;
+    }
+    .header-actions{
+      display:flex; gap:10px;
+    }
+    .icon-btn{
+      width:38px; height:38px; border-radius:14px;
+      background:#ffffff;
+      display:flex; align-items:center; justify-content:center;
+      box-shadow:var(--shadow);
+      color:var(--ink); font-weight:700;
+      border:1px solid #e5e7eb;
+      cursor:pointer;
+      transition:transform 160ms ease, box-shadow 160ms ease, background 160ms ease;
+    }
+    .icon-btn:hover{
+      transform:translateY(-2px);
+      box-shadow:0 14px 28px rgba(17,24,39,0.14);
+      background:#f8fafc;
+    }
+
+    /* Scroll area above bottom nav */
+    main{
+      flex:1; padding:0 18px 0;
+    }
+
+    /* Views */
+    .view{display:none; animation:fade 240ms ease}
+    .view.active{display:block}
+    @keyframes fade{from{opacity:0; transform:translateY(6px)} to{opacity:1; transform:translateY(0)}}
+    @keyframes slideDown{from{opacity:0; transform:translateY(-6px)} to{opacity:1; transform:translateY(0)}}
+    @keyframes popIn{from{opacity:0; transform:scale(0.96)} to{opacity:1; transform:scale(1)}}
+
+    /* Hero */
+    .hero{
+      background:radial-gradient(900px 520px at 80% -60%, rgba(59,130,246,0.10) 0%, rgba(16,185,129,0.10) 36%, transparent 70%), var(--card);
+      border:1px solid #e5e7eb;
+      border-radius:var(--radius-xl);
+      padding:18px;
+      box-shadow:var(--shadow);
+      margin-bottom:16px;
+      animation:popIn 320ms ease;
+    }
+    .hero .title{
+      font-weight:800; font-size:16px; margin-bottom:8px;
+    }
+    .hero .sub{
+      font-size:12px; color:var(--muted);
+    }
+
+    /* Grid cards (kártyák a portfólió mintára) */
+    .grid{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:16px 0}
+    .card{
+      background:var(--card);
+      border:1px solid #e5e7eb;
+      border-radius:16px;
+      box-shadow:var(--shadow);
+      padding:14px;
+      transition:transform 160ms ease, box-shadow 160ms ease;
+    }
+    .card:hover{
+      transform:translateY(-3px);
+      box-shadow:0 16px 32px rgba(17,24,39,0.12);
+    }
+    .card .label{font-size:12px; color:var(--muted)}
+    .card .value{font-size:20px; font-weight:800; margin-top:2px}
+    .delta{
+      margin-top:4px; font-size:12px; font-weight:700;
+    }
+    .delta.up{color:var(--ok)}
+    .delta.down{color:var(--warn)}
+
+    /* Szekció cím */
+    .section-title{
+      display:flex; justify-content:space-between; align-items:center;
+      margin:16px 2px 8px;
+    }
+    .section-title h2{
+      font-size:16px; font-weight:800; margin:0;
+    }
+    .section-title .muted{font-size:12px; color:var(--muted)}
+
+    /* List item (Your plan mintára, világos) */
+    .list{
+      display:flex; flex-direction:column; gap:10px;
+    }
+    .item{
+      background:var(--card);
+      border:1px solid #e5e7eb;
+      border-radius:16px;
+      padding:12px;
+      display:flex; gap:12px;
+      box-shadow:var(--shadow);
+      transition:transform 160ms ease, box-shadow 160ms ease;
+    }
+    .item:hover{
+      transform:translateY(-2px);
+      box-shadow:0 16px 30px rgba(17,24,39,0.12);
+    }
+    .item .thumb{
+      width:56px; height:56px; border-radius:12px; background:linear-gradient(135deg,#eef2ff,#e6fffa);
+      display:flex; align-items:center; justify-content:center; color:var(--primary); font-weight:800;
+      border:1px solid #e5e7eb;
+    }
+    .item .content{flex:1}
+    .item .title{font-weight:700}
+    .item .meta{font-size:12px; color:var(--muted); margin-top:2px}
+    .badge{
+      font-size:11px; color:#ffffff; background:var(--grad-blue);
+      padding:6px 10px; border-radius:999px; font-weight:800; align-self:center;
+      box-shadow:0 10px 18px rgba(59,130,246,0.25);
+    }
+    .badge.secondary{
+      background:var(--grad-green);
+      box-shadow:0 10px 18px rgba(16,185,129,0.25);
+    }
+
+    /* Chart container világos stílus */
+    .chart-wrap{
+      background:var(--card);
+      border:1px solid #e5e7eb;
+      border-radius:16px;
+      padding:12px;
+      box-shadow:var(--shadow);
+    }
+    .chart{
+      height:220px;
+    }
+
+    /* Ajánlások */
+    .rec{
+      background:var(--card);
+      border:1px solid #e5e7eb;
+      border-radius:16px;
+      padding:12px; margin-bottom:10px;
+      box-shadow:var(--shadow);
+    }
+    .rec b{display:block; margin-bottom:6px}
+    .btn{
+      margin-top:8px; background:var(--grad-blue);
+      color:#ffffff; border:none; border-radius:12px; padding:10px 12px; font-weight:800; cursor:pointer;
+      box-shadow:0 12px 22px rgba(59,130,246,0.25);
+      transition:transform 160ms ease, box-shadow 160ms ease, filter 160ms ease;
+    }
+    .btn:hover{
+      transform:translateY(-2px);
+      filter:brightness(1.03);
+      box-shadow:0 18px 28px rgba(59,130,246,0.28);
+    }
+    .btn.secondary{
+      background:var(--grad-green);
+      box-shadow:0 12px 22px rgba(16,185,129,0.25);
+    }
+
+    /* Asztaltérkép */
+    .map-wrap{
+      background:var(--card);
+      border:1px solid #e5e7eb;
+      border-radius:16px;
+      padding:12px;
+      box-shadow:var(--shadow);
+    }
+    .map{
+      position:relative; height:320px; border-radius:12px;
+      background:linear-gradient(135deg,#f3f6ff,#eef7ff);
+      border:1px dashed #cbd5e1; margin-top:8px; overflow:hidden;
+    }
+    .table{
+      position:absolute; width:96px; height:62px;
+      background:#ffffff;
+      border:1px solid #e5e7eb; border-radius:14px;
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      box-shadow:0 10px 18px rgba(17,24,39,0.08); cursor:grab; color:var(--ink);
+      transition:transform 120ms ease, box-shadow 120ms ease;
+    }
+    .table:active{cursor:grabbing; transform:scale(0.98)}
+    .table.high{outline:2px solid var(--ok)}
+    .table.low{outline:2px solid var(--warn)}
+    .table strong{font-size:13px}
+    .table .cap{font-size:12px; color:var(--muted)}
+
+    .table-controls{
+      display:flex; gap:8px; margin-top:8px; flex-wrap:wrap;
+    }
+    .input{
+      background:#ffffff; border:1px solid #e5e7eb; border-radius:12px;
+      padding:10px 12px; font-weight:600; color:var(--ink);
+      box-shadow:var(--shadow);
+    }
+
+    /* Bottom nav — portfólió stílus */
+    .bottom-nav{
+      position:fixed; left:0; right:0; bottom:0;
+      background:rgba(255,255,255,0.75); backdrop-filter: blur(16px);
+      border-top:1px solid #e5e7eb;
+      height:80px; display:flex; align-items:center; justify-content:center;
+    }
+    .tabs{
+      position:relative; display:grid; grid-template-columns:repeat(4,1fr);
+      gap:8px; width:92%; max-width:440px;
+      background:#f1f5ff; border:1px solid #e5e7eb;
+      border-radius:20px; padding:6px;
+      box-shadow:var(--shadow);
+    }
+    .tab{
+      position:relative; z-index:2; height:52px; border-radius:14px;
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      color:var(--muted); cursor:pointer; user-select:none;
+      transition:color 180ms ease, transform 180ms ease;
+    }
+    .tab .ico{font-size:18px; line-height:1}
+    .tab .txt{font-size:11px; margin-top:4px; font-weight:800; letter-spacing:0.3px}
+    .tab.active{color:#0d141f; font-weight:800}
+    .tab:hover{transform:translateY(-1px)}
+
+    .pill{
+      position:absolute; z-index:1; top:6px; left:6px; width:calc(25% - 6px*2/4);
+      height:52px; border-radius:14px;
+      background:var(--grad-blue);
+      box-shadow:0 12px 26px rgba(59,130,246,0.28), inset 0 0 0 1px rgba(255,255,255,0.18);
+      transition:left 260ms cubic-bezier(.25,.8,.25,1), width 260ms ease;
+    }
+
+    /* Kis képernyő finomhangolás */
+    @media (max-width:360px){
+      .tab .txt{display:none}
+    }
+
+    /* Divider stílus */
+    .divider{
+      height:1px; background:#e5e7eb; margin:12px 0; opacity:0.9;
+    }
+
+    /* Finom beúszó animáció a listára */
+    .list .item{
+      animation:fade 260ms ease;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="greet">
+        <div class="hi">Hello, Bernát</div>
+        <div class="date">Ma • 07 Nov</div>
+      </div>
+      <div class="header-actions">
+        <button class="icon-btn" title="Menü">☰</button>
+        <button class="icon-btn" title="Értesítések">🔔</button>
+      </div>
+    </header>
+
+    <main>
+      <!-- Dashboard (Home) -->
+      <section id="owner" class="view active">
+        <div class="hero">
+          <div class="title">Napi kihívás</div>
+          <div class="sub">Optimalizáld a holt-időt 15:00–17:00 között, célozd meg a +10% bevételi upliftet.</div>
+        </div>
+
+        <div class="grid">
+          <div class="card">
+            <div class="label">Napi bevétel</div>
+            <div class="value" id="revToday">— Ft</div>
+            <div id="revDelta" class="delta up">+—%</div>
+          </div>
+          <div class="card">
+            <div class="label">Átlagos kosárérték</div>
+            <div class="value" id="avgBasket">— Ft</div>
+            <div id="basketDelta" class="delta up">+—%</div>
+          </div>
+          <div class="card">
+            <div class="label">Össz. margin</div>
+            <div class="value" id="marginTotal">— Ft</div>
+            <div id="marginDelta" class="delta down">—%</div>
+          </div>
+          <div class="card">
+            <div class="label">Holt idő arány</div>
+            <div class="value" id="idleRatio">—%</div>
+          </div>
+        </div>
+
+        <div class="section-title">
+          <h2>Forgalom óránként</h2>
+          <div class="muted">Interaktív</div>
+        </div>
+        <div class="chart-wrap">
+          <canvas id="salesChart" class="chart"></canvas>
+        </div>
+
+        <div class="section-title">
+          <h2>Top / gyenge menü</h2>
+          <div class="muted">Margin és népszerűség</div>
+        </div>
+        <div id="menuRank" class="list"></div>
+      </section>
+
+      <!-- Ajánlások -->
+      <section id="recommendations" class="view">
+        <div class="section-title">
+          <h2>Ajánlások</h2>
+          <span class="muted">ML javaslatok</span>
+        </div>
+        <div id="recs"></div>
+
+        <div class="section-title">
+          <h2>Promóciók hatása</h2>
+          <span class="muted">Elfogadás és uplift</span>
+        </div>
+        <div class="chart-wrap">
+          <canvas id="promoChart" class="chart"></canvas>
+        </div>
+        <div class="item" style="margin-top:10px;">
+          <div class="thumb">%</div>
+          <div class="content">
+            <div class="title">Elfogadási arány</div>
+            <div class="meta">Vendég szegmensek szerinti bontás</div>
+          </div>
+          <div class="badge" id="acceptRate">—%</div>
+        </div>
+      </section>
+
+      <!-- Asztaltérkép -->
+      <section id="tablemap" class="view">
+        <div class="section-title">
+          <h2>Asztaltérkép</h2>
+          <span class="muted">Drag & drop</span>
+        </div>
+
+        <div class="map-wrap">
+          <div class="table-controls">
+            <button class="btn secondary" id="addTableBtn">Új asztal</button>
+            <input class="input" id="newTableName" placeholder="Asztal neve (pl. C3)" />
+            <button class="btn" id="startSimBtn">Szimuláció indítása</button>
+            <button class="btn" id="stopSimBtn">Szimuláció leállítása</button>
+          </div>
+          <div id="map" class="map"></div>
+        </div>
+      </section>
+
+      <!-- Admin -->
+      <section id="admin" class="view">
+        <div class="section-title">
+          <h2>Rendszer állapot</h2>
+          <span class="muted">Szolgáltatások</span>
+        </div>
+        <div class="item">
+          <div class="thumb">POS</div>
+          <div class="content">
+            <div class="title">POS adapter</div>
+            <div class="meta">Online • stabil kapcsolat</div>
+          </div>
+          <div class="badge secondary">OK</div>
+        </div>
+        <div class="item">
+          <div class="thumb">⏱</div>
+          <div class="content">
+            <div class="title">Utolsó adatérkezés</div>
+            <div class="meta" id="lastUpdate">— perc</div>
+          </div>
+          <div class="badge">Friss</div>
+        </div>
+        <div class="item">
+          <div class="thumb">ML</div>
+          <div class="content">
+            <div class="title">ML szolgáltatás</div>
+            <div class="meta">Készenlétben</div>
+          </div>
+          <div class="badge secondary">Ready</div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Bottom nav: 4 tab, mozgó pill csúszka -->
+    <nav class="bottom-nav">
+      <div class="tabs" id="tabs">
+        <div class="pill" id="pill"></div>
+        <div class="tab active" data-target="owner">
+          <div class="ico">🏠</div>
+          <div class="txt">Főoldal</div>
+        </div>
+        <div class="tab" data-target="recommendations">
+          <div class="ico">💡</div>
+          <div class="txt">Ajánlások</div>
+        </div>
+        <div class="tab" data-target="tablemap">
+          <div class="ico">🪑</div>
+          <div class="txt">Térkép</div>
+        </div>
+        <div class="tab" data-target="admin">
+          <div class="ico">⚙️</div>
+          <div class="txt">Admin</div>
+        </div>
+      </div>
+    </nav>
+  </div>
+
+  <script>
+    // Tab navigation + pill slider
+    const tabs = Array.from(document.querySelectorAll('.tab'));
+    const pill = document.getElementById('pill');
+
+    function updatePill(){
+      const activeIdx = tabs.findIndex(t => t.classList.contains('active'));
+      const tabsRect = document.getElementById('tabs').getBoundingClientRect();
+      const targetRect = tabs[activeIdx].getBoundingClientRect();
+      const left = targetRect.left - tabsRect.left;
+      pill.style.left = left + 'px';
+      pill.style.width = targetRect.width + 'px';
+    }
+
+    tabs.forEach(tab=>{
+      tab.addEventListener('click', ()=>{
+        tabs.forEach(t=>t.classList.remove('active'));
+        tab.classList.add('active');
+        // views
+        const tgt = tab.getAttribute('data-target');
+        document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+        document.getElementById(tgt).classList.add('active');
+        updatePill();
+      });
+    });
+    window.addEventListener('resize', updatePill);
+    updatePill();
+
+    // Demo data injection
+    document.getElementById('revToday').innerText = '324 500 Ft';
+    document.getElementById('revDelta').innerText = '+12%';
+    document.getElementById('avgBasket').innerText = '2 450 Ft';
+    document.getElementById('basketDelta').innerText = '+4%';
+    document.getElementById('marginTotal').innerText = '172 300 Ft';
+    document.getElementById('marginDelta').innerText = '-3%';
+    document.getElementById('idleRatio').innerText = '18%';
+
+    // Menu ranking
+    const demoMenu = [
+      { name:'Espresso', margin:380, popularity:0.82 },
+      { name:'Bruschetta', margin:720, popularity:0.64 },
+      { name:'Tiramisu', margin:840, popularity:0.58 },
+      { name:'Cheap Salad', margin:120, popularity:0.21 }
+    ];
+    document.getElementById('menuRank').innerHTML = demoMenu.map(i=>{
+      const pop = Math.round(i.popularity*100);
+      const badgeClass = pop >= 60 ? 'badge secondary' : 'badge';
+      return `
+        <div class="item">
+          <div class="thumb">🍽</div>
+          <div class="content">
+            <div class="title">${i.name}</div>
+            <div class="meta">Margin: ${i.margin} Ft • Népszerűség: ${pop}%</div>
+          </div>
+          <div class="${badgeClass}">${pop}%</div>
+        </div>
+      `;
+    }).join('');
+
+    // Ajánlások
+    const demoRecs = [
+      { type:'Holt-idő promó', payload:{ promo:'15:00–17:00 • Espresso 20% kedvezmény' } },
+      { type:'Árkorrekció', payload:{ promo:'Bruschetta +10% ár' } },
+      { type:'Upsell párosítás', payload:{ promo:'Espresso + Tiramisu' } }
+    ];
+    document.getElementById('recs').innerHTML = demoRecs.map(r=>
+      `<div class="rec"><b>${r.type}</b>${r.payload.promo}<br/><button class="btn">Aktiválás</button></div>`
+    ).join('');
+
+    // Charts (Chart.js)
+    // Sales line chart
+    const salesCtx = document.getElementById('salesChart').getContext('2d');
+    const salesChart = new Chart(salesCtx, {
+      type: 'line',
+      data: {
+        labels: ['10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00'],
+        datasets: [{
+          label: 'Forgalom (Ft)',
+          data: [120000, 180000, 150000, 200000, 250000, 160000, 140000, 210000, 280000, 300000, 260000],
+          borderColor: '#3b82f6',
+          backgroundColor: 'rgba(59,130,246,0.15)',
+          tension: 0.35,
+          fill: true,
+          pointRadius: 2,
+          pointHoverRadius: 4
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: { duration: 900, easing: 'easeOutQuart' },
+        plugins: { legend: { display: false }, tooltip: { mode: 'index', intersect: false } },
+        scales: {
+          x: { grid: { display: false } },
+          y: { grid: { color: '#e5e7eb' }, ticks: { callback: v => v.toLocaleString('hu-HU') + ' Ft' } }
+        }
+      }
+    });
+
+    // Promo bar chart
+    const promoCtx = document.getElementById('promoChart').getContext('2d');
+    const promoChart = new Chart(promoCtx, {
+      type: 'bar',
+      data: {
+        labels: ['Előtte','Közben','Utána','Uplift'],
+        datasets: [{
+          label: 'Promóció hatás',
+          data: [100, 115, 108, 15],
+          backgroundColor: ['#93c5fd','#3b82f6','#60a5fa','#10b981'],
+          borderRadius: 8,
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: { duration: 800, easing: 'easeOutCubic' },
+        plugins: { legend: { display: false }, tooltip: { mode: 'index', intersect: false } },
+        scales: {
+          x: { grid: { display: false } },
+          y: { grid: { color: '#e5e7eb' }, ticks: { callback: v => v + '%' } }
+        }
+      }
+    });
+    document.getElementById('acceptRate').innerText='68%';
+
+    // Admin "Utolsó adatérkezés" frissítés
+    let lastMins = 2;
+    const lastUpdateEl = document.getElementById('lastUpdate');
+    function tickLastUpdate(){
+      lastMins = Math.max(0, lastMins - 1);
+      lastUpdateEl.textContent = lastMins + ' perc';
+    }
+    lastUpdateEl.textContent = lastMins + ' perc';
+    setInterval(()=>{ lastMins = 2; lastUpdateEl.textContent = lastMins + ' perc'; }, 60000);
+    setInterval(tickLastUpdate, 30000);
+
+    // Asztaltérkép
+    const map = document.getElementById('map');
+    let simTimer = null;
+
+    const tableState = [
+      {id:'A1',name:'A1',x:30,y:40,revenue:185000},
+      {id:'A2',name:'A2',x:140,y:60,revenue:72000},
+      {id:'B1',name:'B1',x:280,y:140,revenue:205500},
+      {id:'T3',name:'Terasz 3',x:360,y:220,revenue:96000}
+    ];
+
+    function renderMap(){
+      map.innerHTML = '';
+      tableState.forEach(t=>{
+        const el = document.createElement('div');
+        el.className = 'table ' + (t.revenue>=150000?'high':t.revenue<=90000?'low':'');
+        el.style.left = t.x + 'px';
+        el.style.top = t.y + 'px';
+        el.innerHTML = `<strong>${t.name}</strong><div class="cap">${t.revenue.toLocaleString('hu-HU')} Ft</div>`;
+        map.appendChild(el);
+
+        // Drag & drop
+        let dragging = false, ox = 0, oy = 0;
+        el.addEventListener('mousedown', e=>{
+          dragging = true; ox = e.offsetX; oy = e.offsetY;
+          el.style.zIndex = 5;
+        });
+        map.addEventListener('mousemove', e=>{
+          if(!dragging) return;
+          const rect = map.getBoundingClientRect();
+          let nx = e.clientX - rect.left - ox;
+          let ny = e.clientY - rect.top - oy;
+          // határok
+          nx = Math.max(0, Math.min(nx, rect.width - el.offsetWidth));
+          ny = Math.max(0, Math.min(ny, rect.height - el.offsetHeight));
+          el.style.left = nx + 'px';
+          el.style.top = ny + 'px';
+          t.x = nx; t.y = ny;
+        });
+        window.addEventListener('mouseup', ()=>{
+          dragging = false; el.style.zIndex = 1;
+        });
+
+        // Kattintás animáció
+        el.addEventListener('click', ()=>{
+          el.style.boxShadow = '0 16px 30px rgba(17,24,39,0.14)';
+          setTimeout(()=> el.style.boxShadow = '0 10px 18px rgba(17,24,39,0.08)', 180);
+        });
+      });
+    }
+    renderMap();
+
+    // Új asztal hozzáadása
+    const addTableBtn = document.getElementById('addTableBtn');
+    const newTableName = document.getElementById('newTableName');
+
+    addTableBtn.addEventListener('click', ()=>{
+      const name = (newTableName.value || '').trim();
+      const id = name || ('T' + (tableState.length + 1));
+      const rect = map.getBoundingClientRect();
+      const x = Math.round(Math.random() * (rect.width - 110));
+      const y = Math.round(Math.random() * (rect.height - 70));
+      tableState.push({id, name:id, x, y, revenue: Math.floor(50000 + Math.random()*50000)});
+      renderMap();
+      // apró beúszó jelzés
+      map.style.outline = '2px solid rgba(16,185,129,0.35)';
+      setTimeout(()=> map.style.outline = '1px dashed #cbd5e1', 300);
+      newTableName.value = '';
+    });
+
+    // Szimuláció: 10 másodpercenként random növelés + grafikon frissítés hatása
+    function startSimulation(){
+      if(simTimer) return;
+      simTimer = setInterval(()=>{
+        let totalDelta = 0;
+        tableState.forEach(t=>{
+          const delta = Math.floor(Math.random()*7000) - 1500; // kisebb negatív fluktuáció is
+          t.revenue = Math.max(0, t.revenue + delta);
+          totalDelta += Math.max(0, delta);
+        });
+        renderMap();
+
+        // Forgalom grafikon friss adatszúrás (utolsó pont kis emelés)
+        const ds = salesChart.data.datasets[0];
+        const lastIdx = ds.data.length - 1;
+        ds.data[lastIdx] = Math.max(0, ds.data[lastIdx] + Math.floor(totalDelta/4));
+        salesChart.update('none');
+      }, 10000);
+    }
+    function stopSimulation(){
+      if(simTimer){ clearInterval(simTimer); simTimer = null; }
+    }
+    document.getElementById('startSimBtn').addEventListener('click', startSimulation);
+    document.getElementById('stopSimBtn').addEventListener('click', stopSimulation);
+
+    // Finom beúszó animáció a hero értékekhez
+    function pulseValue(el){
+      el.style.transition = 'color 160ms ease, transform 160ms ease';
+      el.style.transform = 'scale(1.02)';
+      el.style.color = '#111827';
+      setTimeout(()=>{
+        el.style.transform = 'scale(1)';
+        el.style.color = '';
+      }, 220);
+    }
+
+    // Demo: értékek frissítése és pulzálása pár másodpercenként
+    setInterval(()=>{
+      const revEl = document.getElementById('revToday');
+      const deltaEl = document.getElementById('revDelta');
+      let current = parseInt(revEl.textContent.replace(/\D/g,''), 10) || 324500;
+      const add = Math.floor(Math.random()*25000);
+      current += add;
+      revEl.textContent = current.toLocaleString('hu-HU') + ' Ft';
+      deltaEl.textContent = '+' + Math.min(25, Math.round(add/current*100 + 12)) + '%';
+      pulseValue(revEl);
+      pulseValue(deltaEl);
+    }, 15000);
+  </script>
+</body>
+</html>
